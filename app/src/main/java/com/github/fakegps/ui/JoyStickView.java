@@ -122,10 +122,6 @@ public class JoyStickView extends FrameLayout {
                     if (mJoyStickPresenter != null) mJoyStickPresenter.onSetLocationClick();
                     break;
 
-                case R.id.btn_fly_to:
-                    if (mJoyStickPresenter != null) mJoyStickPresenter.onFlyClick();
-                    break;
-
                 case R.id.btn_bookmark:
                     if (mJoyStickPresenter != null) mJoyStickPresenter.onBookmarkLocationClick();
                     break;

@@ -1,19 +1,25 @@
 package com.github.fakegps;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.v7.app.NotificationCompat;
 import android.widget.Toast;
 
 import com.github.fakegps.model.LocPoint;
 import com.github.fakegps.ui.BookmarkActivity;
-import com.github.fakegps.ui.FlyToActivity;
 import com.github.fakegps.ui.JoyStickView;
 import com.github.fakegps.ui.MainActivity;
+import com.tencent.fakegps.R;
 
 import tiger.radio.loggerlibrary.Logger;
 
 /**
  * Created by tiger on 7/22/16.
+ * Switched to GPSd by Sven@Killig.de on 2019/05/11
  */
 public class JoyStickManager implements IJoyStickPresenter {
 
@@ -49,8 +55,7 @@ public class JoyStickManager implements IJoyStickPresenter {
         return INSTANCE;
     }
 
-    public void start(@NonNull LocPoint locPoint) {
-        mCurrentLocPoint = locPoint;
+    public void start() {
         if (mLocationThread == null || !mLocationThread.isAlive()) {
             mLocationThread = new LocationThread(mContext.getApplicationContext(), this);
             mLocationThread.startThread();
@@ -74,20 +79,30 @@ public class JoyStickManager implements IJoyStickPresenter {
     }
 
     public void showJoyStick() {
-        if (mJoyStickView == null) {
-            mJoyStickView = new JoyStickView(mContext);
-            mJoyStickView.setJoyStickPresenter(this);
-        }
+        Intent intent = new Intent(mContext, MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(mContext, 01, intent, Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext.getApplicationContext());
+        builder.setContentTitle(mContext.getText(R.string.app_name));
+//        builder.setContentText("This is the text");
+//        builder.setSubText("Some sub text");
+        builder.setNumber(101);
+        builder.setContentIntent(pendingIntent);
+//        builder.setTicker("Fancy Notification");
+        builder.setSmallIcon(R.drawable.icon_app);
+        //builder.setLargeIcon(bm);
+        builder.setOngoing(true);
+        builder.setPriority(Notification.PRIORITY_DEFAULT);
+        Notification notification = builder.build();
+        NotificationManager notificationManger =
+                (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManger.notify(01, notification);
 
-        if (!mJoyStickView.isShowing()) {
-            mJoyStickView.addToWindow();
-        }
     }
 
     public void hideJoyStick() {
-        if (mJoyStickView != null && mJoyStickView.isShowing()) {
-            mJoyStickView.removeFromWindow();
-        }
+        NotificationManager notificationManger =
+                (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManger.cancel(01);
     }
 
     public LocPoint getCurrentLocPoint() {
@@ -141,18 +156,6 @@ public class JoyStickManager implements IJoyStickPresenter {
     public void onSetLocationClick() {
         Logger.d(TAG, "onSetLocationClick");
         MainActivity.startPage(mContext);
-    }
-
-    @Override
-    public void onFlyClick() {
-        Logger.d(TAG, "onFlyClick");
-        if (mIsFlyMode) {
-            stopFlyMode();
-            Toast.makeText(mContext, "Stop Fly", Toast.LENGTH_SHORT).show();
-        } else {
-            FlyToActivity.startPage(mContext);
-        }
-
     }
 
     @Override

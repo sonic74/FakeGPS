@@ -5,11 +5,11 @@ android {
     buildToolsVersion "23.0.3"
 
     defaultConfig {
-        applicationId "com.github.fakegps"
+        applicationId "de.killig.gpsd"
         minSdkVersion 14
         targetSdkVersion 23
-        versionCode 1
-        versionName "1.1"
+        versionCode 2
+        versionName "1.2"
     }
     buildTypes {
         release {
@@ -20,7 +20,7 @@ android {
 
     signingConfigs {
         debug {
-            storeFile file('../keystore.debug.jks')
+            storeFile project.hasProperty('STOREFILE') ? file(STOREFILE) : file('../keystore.debug.jks')
             storePassword project.hasProperty('STOREPASS') ? STOREPASS : 'apptest'
             keyAlias project.hasProperty('KEYALIAS') ? KEYALIAS : 'apptest'
             keyPassword project.hasProperty('KEYPASS') ? KEYPASS : 'apptest'
@@ -46,4 +46,5 @@ dependencies {
     compile project(':loggerlibrary')
     compile 'com.android.support:appcompat-v7:23.4.0'
     compile 'com.android.support:support-v4:23.4.0'
+    compile 'de.taimos:gpsd4java:1.10'
 }

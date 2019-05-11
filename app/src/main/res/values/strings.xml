@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">FakeGPS</string>
+    <string name="app_name">GPSd client</string>
     <string name="btn_start">Start</string>
     <string name="btn_stop">Stop</string>
     <string name="menu_delete">Delete</string>
@@ -12,8 +12,8 @@
     <string name="bookmark">Bookmark</string>
     <string name="move_step">Move Step</string>
     <string name="move_step_hint">Move Step</string>
-    <string name="loc_input_hint">Latitude , Longitude</string>
-    <string name="location">Location:</string>
+    <string name="loc_input_hint">host:port</string>
+    <string name="hostname">GPSd server:</string>
     <string name="fly_time">Fly Time(s)</string>
     <string name="bookmark_name">Bookmark Name</string>
     <string name="no_data">No Bookmarks</string>

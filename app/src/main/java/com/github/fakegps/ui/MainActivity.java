@@ -5,11 +5,12 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.text.TextUtils;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -32,14 +33,9 @@ import com.tencent.fakegps.R;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
-    private final double LAT_DEFAULT = 37.802406;
-    private final double LON_DEFAULT = -122.401779;
-//    private final double LAT_DEFAULT = 23.151637;
-//    private final double LON_DEFAULT = 113.344721;
-
     public static final int DELETE_ID = 1001;
 
-    private EditText mLocEditText;
+    private EditText mHostEditText;
     private EditText mMoveStepEditText;
     private ListView mListView;
     private Button mBtnStart;
@@ -47,26 +43,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private BookmarkAdapter mAdapter;
 
 
+    SharedPreferences sharedPref;
+    public static final String PREFS_KEY="address";
+    public static final String PREFS_DEFAULT ="192.168.43.1:2947";
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //location input
-        mLocEditText = (EditText) findViewById(R.id.inputLoc);
-        LocPoint currentLocPoint = JoyStickManager.get().getCurrentLocPoint();
-        if (currentLocPoint != null) {
-            mLocEditText.setText(currentLocPoint.toString());
-        } else {
-            String lastLocPoint = DbUtils.getLastLocPoint(this);
-            if (!TextUtils.isEmpty(lastLocPoint)) {
-                mLocEditText.setText(lastLocPoint);
-            } else {
-                mLocEditText.setText(new LocPoint(LAT_DEFAULT, LON_DEFAULT).toString());
-            }
-        }
+        //hostname input
+        sharedPref= PreferenceManager.getDefaultSharedPreferences(this);
+        mHostEditText = (EditText) findViewById(R.id.inputHostname);
 
-        mLocEditText.setSelection(mLocEditText.getText().length());
+
+        mHostEditText.setText(sharedPref.getString(PREFS_KEY, PREFS_DEFAULT));
+
 
         //each move step delta
         mMoveStepEditText = (EditText) findViewById(R.id.inputStep);
@@ -91,37 +84,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View view) {
         double step = FakeGpsUtils.getMoveStepFromInput(this, mMoveStepEditText);
-        LocPoint point = FakeGpsUtils.getLocPointFromInput(this, mLocEditText);
 
         switch (view.getId()) {
             case R.id.btn_start:
+
+
+                String value = mHostEditText.getText().toString();
+                SharedPreferences.Editor editor=sharedPref.edit();
+                editor.putString(PREFS_KEY,value);
+                editor.apply();
+
+
                 if (!JoyStickManager.get().isStarted()) {
                     JoyStickManager.get().setMoveStep(step);
-                    if (point != null) {
-                        JoyStickManager.get().start(point);
-                        finish();
-                    } else {
-                        Toast.makeText(this, "Input is not valid!", Toast.LENGTH_SHORT).show();
-                    }
+                    JoyStickManager.get().start();
+                    finish();
                 } else {
-                    LocPoint currentLocPoint = JoyStickManager.get().getCurrentLocPoint();
-                    if (currentLocPoint != null) {
-                        DbUtils.saveLastLocPoint(this, currentLocPoint);
-                    }
                     JoyStickManager.get().stop();
                     finish();
                 }
                 updateBtnStart();
                 updateBtnSetNew();
-                break;
-
-            case R.id.btn_set_loc:
-                if (step > 0 && point != null) {
-                    JoyStickManager.get().setMoveStep(step);
-                    JoyStickManager.get().jumpToLocation(point);
-                } else {
-                    Toast.makeText(this, "Input is not valid!", Toast.LENGTH_SHORT).show();
-                }
                 break;
         }
     }
@@ -150,14 +133,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         View emptyView = findViewById(R.id.empty_view);
         mListView.setEmptyView(emptyView);
-
-        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                LocPoint locPoint = mAdapter.getItem(position).getLocPoint();
-                mLocEditText.setText(locPoint != null ? locPoint.toString() : "");
-            }
-        });
 
         registerForContextMenu(mListView);
 

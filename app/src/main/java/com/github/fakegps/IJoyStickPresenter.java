@@ -6,8 +6,6 @@ package com.github.fakegps;
 public interface IJoyStickPresenter {
     void onSetLocationClick();
 
-    void onFlyClick();
-
     void onBookmarkLocationClick();
 
     void onCopyLocationClick();
