@@ -60,7 +60,7 @@ public class JoyStickManager implements IJoyStickPresenter {
             mLocationThread = new LocationThread(mContext.getApplicationContext(), this);
             mLocationThread.startThread();
         }
-        showJoyStick();
+        showJoyStick(null, null);
         mIsStarted = true;
     }
 
@@ -78,16 +78,16 @@ public class JoyStickManager implements IJoyStickPresenter {
         return mIsStarted;
     }
 
-    public void showJoyStick() {
+    public void showJoyStick(String contentText, String subText) {
         Intent intent = new Intent(mContext, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(mContext, 01, intent, Intent.FLAG_ACTIVITY_CLEAR_TASK);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext.getApplicationContext());
         builder.setContentTitle(mContext.getText(R.string.app_name));
-//        builder.setContentText("This is the text");
-//        builder.setSubText("Some sub text");
+        builder.setContentText(contentText);
+        builder.setSubText(subText);
         builder.setNumber(101);
         builder.setContentIntent(pendingIntent);
-//        builder.setTicker("Fancy Notification");
+        //builder.setTicker(contentText);
         builder.setSmallIcon(R.drawable.icon_app);
         //builder.setLargeIcon(bm);
         builder.setOngoing(true);
@@ -96,7 +96,6 @@ public class JoyStickManager implements IJoyStickPresenter {
         NotificationManager notificationManger =
                 (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManger.notify(01, notification);
-
     }
 
     public void hideJoyStick() {
